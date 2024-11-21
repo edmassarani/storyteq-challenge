@@ -20,6 +20,7 @@ const citiesStore = useCitiesStore()
         placeholder="Search books..."
         :options="bookStore.books"
         filter-prop="title"
+        :display-fn="(book: any) => `${book['title']} - ${book['author']}`"
       />
     </div>
   </main>
