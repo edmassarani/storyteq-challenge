@@ -27,11 +27,5 @@ export const useCitiesStore = defineStore('citites', () => {
     'tulsa',
   ])
 
-  function searchCities(text: string): string[] {
-    return cities.value.filter((city) =>
-      city.toLocaleLowerCase().includes(text.toLocaleLowerCase()),
-    )
-  }
-
-  return { cities, searchCities }
+  return { cities }
 })

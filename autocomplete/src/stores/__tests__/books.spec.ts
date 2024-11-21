@@ -11,18 +11,4 @@ describe('Books Store', () => {
     const store = useBooksStore()
     expect(store.books.length).toBe(7)
   })
-
-  it('searches list', () => {
-    const store = useBooksStore()
-    expect(store.searchBooks('ris')).toEqual([
-      {
-        title: 'Clarissa',
-        author: 'Samuel Richardson',
-      },
-      {
-        title: 'Tristram Shandy',
-        author: 'Laurence Sterne',
-      },
-    ])
-  })
 })

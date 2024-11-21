@@ -11,9 +11,4 @@ describe('Cities Store', () => {
     const store = useCitiesStore()
     expect(store.cities.length).toBe(22)
   })
-
-  it('searches list', () => {
-    const store = useCitiesStore()
-    expect(store.searchCities('sant')).toEqual(['santiago', 'santa rosa'])
-  })
 })
