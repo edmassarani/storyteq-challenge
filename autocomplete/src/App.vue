@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import AutoComplete from './components/AutoComplete.vue'
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <HelloWorld msg="You did it!" />
+    <div class="flex items-center justify-center gap-4 px-2 py-4">
+      <h1 class="text-2xl font-bold">Simple Autocomplete</h1>
+      <img class="size-8" alt="Vue logo" src="./assets/logo.svg" />
+    </div>
   </header>
 
-  <main></main>
+  <main class="flex flex-col items-center gap-4">
+    <AutoComplete placeholder="Search cities..." class="w-96" />
+    <AutoComplete placeholder="Search books..." class="w-96" />
+  </main>
 </template>
 
 <style scoped></style>
