@@ -39,10 +39,6 @@ export const useBooksStore = defineStore('books', () => {
   ])
 
   function searchBooks(text: string): Book[] {
-    if (text.length < 3) {
-      return []
-    }
-
     return books.value.filter((book) =>
       book.title.toLocaleLowerCase().includes(text.toLocaleLowerCase()),
     )
