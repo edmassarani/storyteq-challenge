@@ -19,6 +19,15 @@ export class ExcessiveCancellationsChecker {
   async companiesInvolvedInExcessiveCancellations() {
     await this.parseFile();
 
+    const naughtyList = [];
+
+    for (const company of this.companyMap.keys()) {
+      if (this.isCancellingExcessively(this.companyMap.get(company))) {
+        naughtyList.push(company);
+      }
+    }
+
+    return naughtyList;
   }
 
   /**
@@ -26,7 +35,10 @@ export class ExcessiveCancellationsChecker {
    * Note this should always resolve a number or throw error.
    */
   async totalNumberOfWellBehavedCompanies() {
-    await this.parseFile();
+    const naughtyList = await this.companiesInvolvedInExcessiveCancellations();
+    const companies = [...this.companyMap.keys()];
+
+    return companies.length - naughtyList.length;
   }
 
   async parseFile() {
@@ -38,7 +50,7 @@ export class ExcessiveCancellationsChecker {
           const time = new Date(row[0]);
           const company = row[1];
           const type = row[2];
-          const amount = row[3];
+          const amount = parseInt(row[3]);
 
           let list = this.companyMap.get(company);
 
@@ -66,4 +78,56 @@ export class ExcessiveCancellationsChecker {
       console.error('Error while reading the stream:', error);
     }
   }
-new ExcessiveCancellationsChecker('./data/trades.csv').companiesInvolvedInExcessiveCancellations();
+
+  isCancellingExcessively(trades) {
+    const stack = [];
+    let totalBuy = 0;
+    let totalCancel = 0;
+
+    for (const trade of trades) {
+      if (!stack.length) {
+        stack.push(trade);
+      } else {
+        const oldestTrade = stack[0];
+
+        let timeDiff = (oldestTrade.time - trade.time) / 1000;
+        const cancelRatio = totalBuy + totalCancel ? totalCancel / (totalBuy + totalCancel) : 0;
+
+        if (timeDiff > 60 && cancelRatio > 1 / 3) {
+          return true;
+        }
+
+        while (timeDiff > 60) {
+          const removed = stack.shift();
+
+          switch (removed.type) {
+            case 'D':
+              totalBuy -= removed.amount;
+              break;
+            case 'F':
+              totalCancel -= removed.amount;
+              break;
+            default:
+              break;
+          }
+
+          timeDiff = (stack[0].time - trade.time) / 1000;
+        }
+      }
+
+      switch (trade.type) {
+        case 'D':
+          totalBuy += trade.amount;
+          break;
+        case 'F':
+          totalCancel += trade.amount;
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    return totalBuy + totalCancel ? totalCancel / (totalBuy + totalCancel) > 1 / 3 : false;
+  }
+}
