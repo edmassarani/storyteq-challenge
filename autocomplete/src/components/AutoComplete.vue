@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 
 type Option = string | { [key: string]: string }
 
@@ -20,6 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
 const inputText = ref('')
 const isOpen = ref(false)
 const selectedIndex = ref(0)
+const autocomplete = useTemplateRef('autocomplete')
 
 const displayedOptions = computed(() => {
   if (inputText.value.length < 3) return []
@@ -77,12 +78,25 @@ const onArrowUp = () => {
     selectedIndex.value = displayedOptions.value.length - 1
   }
 }
+
+const handleClickOutside = (event: Event) => {
+  if (autocomplete.value && !autocomplete.value.contains(event.target as Node)) {
+    isOpen.value = false
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <template>
-  <div class="relative">
+  <div ref="autocomplete" class="relative">
     <input
-      ref="autocomplete"
       v-model="inputText"
       class="w-full rounded border px-3 py-2 outline-none"
       type="text"
@@ -92,6 +106,8 @@ const onArrowUp = () => {
       @keydown.down.prevent="onArrowDown"
       @keydown.up.prevent="onArrowUp"
       @keydown.enter.prevent="selectOption()"
+      @keydown.tab="isOpen = false"
+      @focus="isOpen = true"
     />
 
     <div v-if="isOpen" class="absolute z-10 -mt-1 w-full">
